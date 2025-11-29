@@ -1,3 +1,8 @@
+/* default.css - responsive / mobile-friendly version
+   Replaces fixed 1100x680 layout with fluid, aspect-preserving layout.
+*/
+
+/* --- Base / Desktop (original styles, preserved) --- */
 body {
   margin: 0;
   padding: 0;
@@ -16,13 +21,23 @@ a {
 #main {
   width: 100%;
 }
+
+/* Legacy desktop wrapper kept as baseline */
+:root{
+  --desktop-width: 1100px;
+  --desktop-height: 680px;
+}
+
+/* Desktop / baseline styles (kept for large screens) */
 #wrap {
   position: relative;
   margin: 0 auto;
-  width: 1100px;
-  height: 680px;
+  width: var(--desktop-width);
+  height: var(--desktop-height);
   margin-top: 10px;
+  overflow: hidden;
 }
+
 #text {
   width: 272px;
   height: 560px;
@@ -58,8 +73,9 @@ a {
 }
 #canvas {
   margin: 0 auto;
-  width: 1100px;
-  height: 680px;
+  width: var(--desktop-width);
+  height: var(--desktop-height);
+  display: block;
 }
 #error {
   margin: 0 auto;
@@ -82,5 +98,154 @@ a {
   margin-top:450px;
   font-size: 25px;
   font-family: monospace;
-
 }
+
+/* --- RESPONSIVE ADDITIONS (mobile-first safety / conversions) --- */
+
+/* Make wrapper fluid while preserving the desktop aspect on wide screens */
+#wrap {
+  width: 100%;
+  max-width: var(--desktop-width);
+  aspect-ratio: 1100 / 680; /* keep original ratio by default */
+  height: auto;
+  box-sizing: border-box;
+}
+
+/* Make canvas scale to wrapper */
+#canvas {
+  width: 100%;
+  height: 100%;
+  max-width: var(--desktop-width);
+  box-sizing: border-box;
+  display: block;
+}
+
+/* Convert absolute pixel positions to percent-based positions relative to 1100x680 */
+#text {
+  position: absolute;
+  /* explicit percent values computed from original pixels (rounded) */
+  left: 17.0909%;   /* 188 / 1100 */
+  top: 11.7647%;    /* 80 / 680 */
+  width: 24.7273%;  /* 272 / 1100 */
+  height: 82.3529%; /* 560 / 680 */
+  font-size: clamp(14px, 1.6vw, 18px);
+  line-height: 1.25;
+  box-sizing: border-box;
+  padding: 0.4rem;
+  color: inherit;
+}
+
+/* message-box positioned proportionally */
+#message-box {
+  position: absolute;
+  left: 17.0909%;   /* same as #text left */
+  top: 66.1765%;    /* 450 / 680 */
+  width: 24.7273%;
+  font-size: clamp(16px, 2.8vw, 26px);
+  line-height: 1.2;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  color: inherit;
+  background: transparent;
+}
+
+/* clock-box positioned proportionally */
+#clock-box {
+  position: absolute;
+  left: 5.4545%;    /* 60 / 1100 */
+  top: 80.8824%;    /* 550 / 680 */
+  font-size: clamp(18px, 2.4vw, 28px);
+}
+
+/* Make .space less aggressive on small screens */
+.space { margin-right: 4vw; }
+
+/* Images / SVGs inside wrapper should scale */
+#wrap img, #wrap svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* Accessibility: tappable elements */
+button, a, .hand {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+/* Mobile (portrait phones) */
+@media (max-width: 600px) {
+  /* Use portrait-friendly aspect ratio */
+  #wrap {
+    aspect-ratio: 9 / 16;
+    padding: 8px;
+  }
+
+  /* Stack text on top in normal flow (no absolute) */
+  #text {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: auto;
+    padding: 12px;
+    margin: 8px 0;
+    background: rgba(0,0,0,0.18); /* optional for readability */
+    border-radius: 8px;
+  }
+
+  /* message-box flows below text */
+  #message-box {
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin-top: 6px;
+    padding: 10px;
+    font-size: 18px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 6px;
+  }
+
+  /* make canvas smaller but keep visible */
+  #canvas {
+    min-height: 320px;
+    display: block;
+  }
+
+  /* Hide the heavy decorative items if needed */
+  #clock-box { position: relative; margin-top: 6px; left: 0; display: block; }
+  .space { margin-right: 40px; }
+
+  /* make .say text comfortable */
+  #code { margin-top: 10px; font-size: 18px; line-height: 1.4; display: block; }
+
+  /* avoid overflow on small screens */
+  body { overflow-x: hidden; }
+}
+
+/* Tablet and small laptops */
+@media (min-width: 601px) and (max-width: 1024px) {
+  #wrap { aspect-ratio: 4 / 3; padding: 12px; }
+  #text {
+    left: 12.7273%;   /* ~140 / 1100 */
+    top: 8.8235%;     /* ~60 / 680 */
+    width: 26%;
+    height: auto;
+    font-size: clamp(15px, 1.8vw, 20px);
+  }
+  #message-box { font-size: clamp(16px, 2.6vw, 22px); }
+  #canvas { min-height: 480px; }
+}
+
+/* Large screens: preserve legacy pixel-perfect look if desired */
+@media (min-width: 1200px) {
+  #wrap { width: 1100px; aspect-ratio: 1100 / 680; }
+  #text { position: absolute; } /* revert to absolute for desktop */
+  #canvas { width: 1100px; height: 680px; }
+}
+
+/* small helpers */
+#wrap, #canvas, #text, #message-box { -webkit-user-select: none; -ms-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
